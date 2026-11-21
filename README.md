@@ -81,7 +81,13 @@ SilicaTest\build.bat
 
 先构建框架，再编译、链接并打包示例模组到 `SilicaTest\dist\SilicaTest\`。把该目录复制到 `<实例>/mods/SilicaTest/`，进入世界后按 `P` 打开示例面板。
 
-`build.bat` 中写有 Visual Studio、LeviLamina SDK 与 xmake 包缓存的绝对路径；换机器时调整脚本开头的 `INC`、`PKG` 与编译器路径。
+`build.bat` 会自动定位 Visual Studio 2022：依次尝试已有的 `VCINSTALLDIR` / `VSINSTALLDIR`、`vswhere.exe` 和标准安装路径，clang-cl 默认取 VS 自带的 LLVM。若 VS 装在非标准位置，在脚本旁新建 `local.build.bat`（已被 git 忽略）并写入：
+
+```bat
+set "SILICA_VS_ROOT=D:\DevTools\VSBuildTools2022"
+```
+
+`SILICA_LLVM_BIN` 可单独指定 clang-cl 所在目录。LeviLamina SDK 与 xmake 包缓存的路径仍写在脚本开头的 `INC`、`PKG` 中。
 
 Silica 与模组必须使用相同的 MSVC ABI 和运行库设置，否则会在加载或跨边界传递控件指针时崩溃。
 

@@ -17,6 +17,10 @@
 *.log
 /tex_probe.exe
 
+# Machine-local build overrides
+/local.build.bat
+/SilicaTest/local.build.bat
+
 # Editors
 .vs/
 .vscode/

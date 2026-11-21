@@ -80,7 +80,13 @@ SilicaTest\build.bat
 
 builds the framework first, then compiles, links, and packages the sample mod into `SilicaTest\dist\SilicaTest\`. Copy that directory into `<instance>/mods/SilicaTest/`, start the game, and press `P` in a world to open the panel.
 
-`build.bat` contains absolute paths for the Visual Studio installation, the LeviLamina SDK, and the xmake package cache. On another machine, adjust `INC`, `PKG`, and the compiler paths at the top of the script.
+`build.bat` locates Visual Studio 2022 automatically: it tries an existing `VCINSTALLDIR` / `VSINSTALLDIR`, then `vswhere.exe`, then the standard install paths, and uses the LLVM bundled with VS for clang-cl. If Visual Studio lives in a non-standard location, create `local.build.bat` next to the script (git-ignored) containing:
+
+```bat
+set "SILICA_VS_ROOT=D:\DevTools\VSBuildTools2022"
+```
+
+`SILICA_LLVM_BIN` overrides the folder containing clang-cl. The LeviLamina SDK and xmake package cache paths are still set through `INC` and `PKG` at the top of the script.
 
 The MSVC ABI and the runtime library settings must match between Silica and your mod; a mismatch crashes at load time or when widget pointers cross the boundary.
 

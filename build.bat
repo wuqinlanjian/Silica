@@ -1,19 +1,51 @@
 @echo off
-REM Builds Silica.lib (static) with clang-cl (MSVC ABI) against the VS 2022
-REM Build Tools on D: and the LeviLamina client SDK headers.
+REM Builds Silica.lib (static) with clang-cl (MSVC ABI) against Visual Studio
+REM 2022 C++ build tools and the LeviLamina client SDK headers.
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
-if not exist "D:\DevTools\VSBuildTools2022\VC\Auxiliary\Build\vcvars64.bat" (
-    echo [error] MSVC environment not found at D:\DevTools\VSBuildTools2022
+REM Optional machine-specific overrides, not tracked by git. Create
+REM local.build.bat next to this script and set:
+REM   SILICA_VS_ROOT   Visual Studio 2022 root (contains VC\Auxiliary\Build\vcvars64.bat)
+REM   SILICA_LLVM_BIN  folder containing clang-cl.exe (default: under SILICA_VS_ROOT)
+if exist "%~dp0local.build.bat" call "%~dp0local.build.bat"
+
+set "PF86=%ProgramFiles(x86)%"
+set "VSWHERE=%PF86%\Microsoft Visual Studio\Installer\vswhere.exe"
+
+if not defined SILICA_VS_ROOT if defined VCINSTALLDIR set "SILICA_VS_ROOT=%VCINSTALLDIR%.."
+if not defined SILICA_VS_ROOT if defined VSINSTALLDIR set "SILICA_VS_ROOT=%VSINSTALLDIR%"
+if not defined SILICA_VS_ROOT if exist "%VSWHERE%" for /f "usebackq delims=" %%i in (`"%VSWHERE%" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "SILICA_VS_ROOT=%%i"
+if not defined SILICA_VS_ROOT if exist "%PF86%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" set "SILICA_VS_ROOT=%PF86%\Microsoft Visual Studio\2022\BuildTools"
+if not defined SILICA_VS_ROOT if exist "%PF86%\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat" set "SILICA_VS_ROOT=%PF86%\Microsoft Visual Studio\2022\Community"
+if not defined SILICA_VS_ROOT if exist "%PF86%\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat" set "SILICA_VS_ROOT=%PF86%\Microsoft Visual Studio\2022\Professional"
+if not defined SILICA_VS_ROOT if exist "%PF86%\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" set "SILICA_VS_ROOT=%PF86%\Microsoft Visual Studio\2022\Enterprise"
+if not defined SILICA_VS_ROOT if exist "%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" set "SILICA_VS_ROOT=%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools"
+if not defined SILICA_VS_ROOT if exist "%ProgramFiles%\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat" set "SILICA_VS_ROOT=%ProgramFiles%\Microsoft Visual Studio\2022\Community"
+
+if not defined SILICA_VS_ROOT (
+    echo [error] Visual Studio 2022 C++ build tools not found
+    echo [error] Set SILICA_VS_ROOT or create local.build.bat with the installation root
     exit /b 1
 )
-if not exist "D:\DevTools\VSBuildTools2022\VC\Tools\Llvm\x64\bin\clang-cl.exe" (
-    echo [error] clang-cl not found at D:\DevTools\VSBuildTools2022\VC\Tools\Llvm\x64\bin
+if not exist "%SILICA_VS_ROOT%\VC\Auxiliary\Build\vcvars64.bat" (
+    echo [error] vcvars64.bat not found under "%SILICA_VS_ROOT%"
     exit /b 1
 )
-call "D:\DevTools\VSBuildTools2022\VC\Auxiliary\Build\vcvars64.bat" >nul
-set "PATH=D:\DevTools\VSBuildTools2022\VC\Tools\Llvm\x64\bin;%PATH%"
+call "%SILICA_VS_ROOT%\VC\Auxiliary\Build\vcvars64.bat" >nul
+
+if not defined SILICA_LLVM_BIN if exist "%SILICA_VS_ROOT%\VC\Tools\Llvm\x64\bin\clang-cl.exe" set "SILICA_LLVM_BIN=%SILICA_VS_ROOT%\VC\Tools\Llvm\x64\bin"
+if not defined SILICA_LLVM_BIN for /f "delims=" %%i in ('where clang-cl 2^>nul') do if not defined SILICA_LLVM_BIN set "SILICA_LLVM_BIN=%%~dpi"
+if not defined SILICA_LLVM_BIN (
+    echo [error] clang-cl.exe not found
+    echo [error] Set SILICA_LLVM_BIN or create local.build.bat with the LLVM bin folder
+    exit /b 1
+)
+if not exist "%SILICA_LLVM_BIN%\clang-cl.exe" (
+    echo [error] clang-cl.exe not found in "%SILICA_LLVM_BIN%"
+    exit /b 1
+)
+set "PATH=%SILICA_LLVM_BIN%;%PATH%"
 
 set "OUT=build"
 set "DIST=dist"
