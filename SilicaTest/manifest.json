@@ -1,0 +1,9 @@
+{
+    "name": "SilicaTest",
+    "entry": "SilicaTest.dll",
+    "version": "0.1.0",
+    "type": "native",
+    "platform": "client",
+    "author": "Silica contributors",
+    "description": "Silica UI framework test harness: a demo panel of panels, labels and buttons; press P in gameplay"
+}

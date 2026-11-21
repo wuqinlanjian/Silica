@@ -1,0 +1,934 @@
+// Lamium 风格示例页：直角、深色扁平表面、左侧分类、右侧列表 + 方形开关 + 按键提示。
+// 所有文本都是 Silica 自己的示例内容。test_panel / hint / status / volume_value /
+// scroll_area 以及 nav_* / handle_* 句柄由 TestOverlay.cpp 绑定。
+
+// 文档级复用：Var 常量、Style 皮肤、Component 参数化子树。
+Var panel_accent: #5CD65C;
+
+Style DemoRowBox {
+    background: #171B1F;
+    border: 1 solid #2A3036;
+    padding: 4;
+}
+
+Component DemoRow(title, detail: "默认说明") {
+    Container {
+        layout: horizontal;
+        height: 26;
+        Label {
+            name: demo_row_title;
+            text: "@title";
+            width: 130;
+            height: 11;
+            margin-top: 5;
+            font-size: 0.66;
+            color: $panel_accent;
+        }
+        Label {
+            name: demo_row_detail;
+            text: "@detail";
+            width: 170;
+            height: 11;
+            margin-top: 5;
+            margin-left: 4;
+            font-size: 0.62;
+            color: #7F8A93;
+        }
+        Slot { }
+    }
+}
+
+Container {
+    name: test_panel;
+    layout: vertical;
+    width: 560;
+    height: 352;
+    background: #0F1215F2;
+    border: 1 solid #353A40;
+
+    // ---------------- 顶栏：标题 / 搜索 / 关闭 ----------------
+    Container {
+        name: header;
+        layout: horizontal;
+        width: 0;
+        height: 38;
+        padding: 6;
+        background: #12161A;
+
+        Image {
+            name: logo;
+            src: "file:ui/logo.png";
+            width: 16;
+            height: 16;
+            margin-left: 2;
+            margin-right: 4;
+            margin-top: 4;
+        }
+
+        Label {
+            text: "Silica 控件演示";
+            width: 196;
+            height: 14;
+            margin-left: 4;
+            margin-top: 6;
+            font-size: 0.85;
+            color: #E6EAEE;
+        }
+
+        TextBox {
+            name: search_field;
+            width: 180;
+            height: 22;
+            margin-left: 8;
+            margin-top: 2;
+            placeholder: "搜索设置…";
+            max_length: 32;
+            font-size: 0.72;
+            text-padding: 7;
+            caret-width: 1;
+            caret-color: #5CD65C;
+            placeholder-color: #6E787F;
+            background: #171B1F;
+            border: 1 solid #2F353B;
+            hover-background: #1C2126;
+            onChange: "handle_text";
+            onSubmit: "handle_submit";
+        }
+
+        Button {
+            name: close_button;
+            text: "关闭 (Esc)";
+            width: 118;
+            height: 22;
+            margin-left: 10;
+            margin-top: 2;
+            font-size: 0.7;
+            background: #1B2025;
+            border: 1 solid #353A40;
+            color: #C9CFD5;
+            hover-background: #262C32;
+            pressed-background: #2F363D;
+            onClick: "close_panel";
+        }
+    }
+
+    Panel {
+        width: 0;
+        height: 1;
+        background: #23282D;
+        border: none;
+    }
+
+    // ---------------- 主体：分类栏 + 设置列表 ----------------
+    Container {
+        name: body;
+        layout: horizontal;
+        width: 0;
+        height: 286;
+
+        Container {
+            name: sidebar;
+            layout: vertical;
+            width: 152;
+            height: 0;
+            padding: 6;
+            background: #12161A;
+
+            Label {
+                text: "分类";
+                width: 0;
+                height: 10;
+                margin-bottom: 5;
+                font-size: 0.55;
+                color: #5B656D;
+            }
+
+            Checkbox {
+                name: nav_general;
+                text: "常规";
+                width: 0;
+                height: 24;
+                margin-bottom: 2;
+                show-box: false;
+                box-size: 4;
+                text-gap: 6;
+                font-size: 0.68;
+                border: none;
+                checked: true;
+                color: @checked ? "#E8ECEF" : "#87919A";
+                onChange: "nav_general";
+
+                Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                Part { anchor: fill; background: #1E2429; when: "checked"; layer: under; }
+                Part { anchor: left; width: 2; background: #5CD65C; when: "checked"; layer: under; }
+                Part { anchor: right; width: 34; height: 10; inset-right: 6; text: "0/8"; font-size: 0.55; color: #66707A; text-align: right; }
+            }
+
+            Checkbox {
+                name: nav_quality;
+                text: "画质";
+                width: 0;
+                height: 24;
+                margin-bottom: 2;
+                show-box: false;
+                box-size: 4;
+                text-gap: 6;
+                font-size: 0.68;
+                border: none;
+                color: @checked ? "#E8ECEF" : "#87919A";
+                onChange: "nav_quality";
+
+                Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                Part { anchor: fill; background: #1E2429; when: "checked"; layer: under; }
+                Part { anchor: left; width: 2; background: #5CD65C; when: "checked"; layer: under; }
+                Part { anchor: right; width: 34; height: 10; inset-right: 6; text: "0/12"; font-size: 0.55; color: #66707A; text-align: right; }
+            }
+
+            Checkbox {
+                name: nav_performance;
+                text: "性能";
+                width: 0;
+                height: 24;
+                margin-bottom: 2;
+                show-box: false;
+                box-size: 4;
+                text-gap: 6;
+                font-size: 0.68;
+                border: none;
+                color: @checked ? "#E8ECEF" : "#87919A";
+                onChange: "nav_performance";
+
+                Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                Part { anchor: fill; background: #1E2429; when: "checked"; layer: under; }
+                Part { anchor: left; width: 2; background: #5CD65C; when: "checked"; layer: under; }
+                Part { anchor: right; width: 34; height: 10; inset-right: 6; text: "0/9"; font-size: 0.55; color: #66707A; text-align: right; }
+            }
+
+            Checkbox {
+                name: nav_iris_settings;
+                text: "光影";
+                width: 0;
+                height: 24;
+                margin-bottom: 2;
+                show-box: false;
+                box-size: 4;
+                text-gap: 6;
+                font-size: 0.68;
+                border: none;
+                color: @checked ? "#E8ECEF" : "#87919A";
+                onChange: "nav_iris_settings";
+
+                Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                Part { anchor: fill; background: #1E2429; when: "checked"; layer: under; }
+                Part { anchor: left; width: 2; background: #5CD65C; when: "checked"; layer: under; }
+                Part { anchor: right; width: 34; height: 10; inset-right: 6; text: "0/6"; font-size: 0.55; color: #66707A; text-align: right; }
+            }
+
+            Checkbox {
+                name: nav_iris_shaders;
+                text: "材质";
+                width: 0;
+                height: 24;
+                margin-bottom: 2;
+                show-box: false;
+                box-size: 4;
+                text-gap: 6;
+                font-size: 0.68;
+                border: none;
+                color: @checked ? "#E8ECEF" : "#87919A";
+                onChange: "nav_iris_shaders";
+
+                Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                Part { anchor: fill; background: #1E2429; when: "checked"; layer: under; }
+                Part { anchor: left; width: 2; background: #5CD65C; when: "checked"; layer: under; }
+                Part { anchor: right; width: 34; height: 10; inset-right: 6; text: "0/4"; font-size: 0.55; color: #66707A; text-align: right; }
+            }
+
+            Checkbox {
+                name: nav_vitrail_shaders;
+                text: "实验";
+                width: 0;
+                height: 24;
+                margin-bottom: 2;
+                show-box: false;
+                box-size: 4;
+                text-gap: 6;
+                font-size: 0.68;
+                border: none;
+                color: @checked ? "#E8ECEF" : "#87919A";
+                onChange: "nav_vitrail_shaders";
+
+                Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                Part { anchor: fill; background: #1E2429; when: "checked"; layer: under; }
+                Part { anchor: left; width: 2; background: #5CD65C; when: "checked"; layer: under; }
+                Part { anchor: right; width: 34; height: 10; inset-right: 6; text: "3/5"; font-size: 0.55; color: #66707A; text-align: right; }
+            }
+
+            Panel {
+                width: 0;
+                height: 1;
+                margin-top: 6;
+                margin-bottom: 6;
+                background: #23282D;
+                border: none;
+            }
+
+            Label {
+                text: "外观";
+                width: 0;
+                height: 10;
+                margin-bottom: 4;
+                font-size: 0.55;
+                color: #5B656D;
+            }
+
+            Panel {
+                width: 0;
+                height: 20;
+                background: transparent;
+
+                Part { anchor: left; width: 70; inset-left: 10; text: "主题"; font-size: 0.62; color: #87919A; text-align: left; }
+                Part { anchor: right; width: 50; inset-right: 6; text: "深色"; font-size: 0.62; color: #C6CDD3; text-align: right; }
+            }
+
+            Panel {
+                width: 0;
+                height: 20;
+                background: transparent;
+
+                Part { anchor: left; width: 70; inset-left: 10; text: "字体"; font-size: 0.62; color: #87919A; text-align: left; }
+                Part { anchor: right; width: 50; inset-right: 6; text: "默认"; font-size: 0.62; color: #C6CDD3; text-align: right; }
+            }
+
+            Button {
+                name: hint_button;
+                text: "显示 / 隐藏提示";
+                width: 0;
+                height: 24;
+                margin-top: 8;
+                font-size: 0.65;
+                background: #1B2025;
+                border: 1 solid #353A40;
+                color: #C9CFD5;
+                hover-background: #262C32;
+                pressed-background: #2F363D;
+                onClick: "toggle_hint";
+            }
+        }
+
+        Panel {
+            width: 1;
+            height: 0;
+            background: #23282D;
+            border: none;
+        }
+
+        Container {
+            name: content;
+            layout: vertical;
+            width: 407;
+            height: 0;
+            background: transparent;
+
+            // 列表列标题
+            Container {
+                name: column_header;
+                layout: horizontal;
+                width: 0;
+                height: 26;
+                padding: 7;
+                background: #12161A;
+
+                Label {
+                    text: "条目";
+                    width: 232;
+                    height: 11;
+                    margin-top: 7;
+                    font-size: 0.58;
+                    color: #5B656D;
+                }
+
+                Button {
+                    name: reset_button;
+                    text: "全部重置";
+                    width: 64;
+                    height: 18;
+                    margin-left: 8;
+                    margin-top: 4;
+                    font-size: 0.6;
+                    background: #1B2025;
+                    border: 1 solid #30363C;
+                    color: #AEB7BE;
+                    hover-background: #262C32;
+                    pressed-background: #2F363D;
+                    onClick: "apply_settings";
+                }
+
+                Label {
+                    text: "状态";
+                    width: 30;
+                    height: 11;
+                    margin-left: 6;
+                    margin-top: 7;
+                    font-size: 0.58;
+                    color: #5B656D;
+                    text-align: center;
+                }
+
+                Label {
+                    text: "按键";
+                    width: 40;
+                    height: 11;
+                    margin-left: 2;
+                    margin-top: 7;
+                    font-size: 0.58;
+                    color: #5B656D;
+                    text-align: right;
+                }
+            }
+
+            Panel {
+                width: 0;
+                height: 1;
+                background: #23282D;
+                border: none;
+            }
+
+            ScrollView {
+                name: scroll_area;
+                width: 0;
+                height: 259;
+                padding: 8;
+                background: transparent;
+                border: none;
+                scroll-step: 30;
+                scroll-smoothing: 22;
+                scrollbar-width: 3;
+                scrollbar-inset: 2;
+                scrollbar-radius: 0;
+                scrollbar-track-color: #FFFFFF0A;
+                scrollbar-thumb-color: #5CD65C80;
+
+                Container {
+                    name: scroll_content;
+                    layout: vertical;
+
+                    Label {
+                        text: "常规";
+                        width: 0;
+                        height: 11;
+                        margin-bottom: 4;
+                        font-size: 0.55;
+                        color: #5CD65C;
+                    }
+
+                    Checkbox {
+                        name: opt_switch;
+                        text: "启用网络同步";
+                        width: 0;
+                        height: 28;
+                        margin-bottom: 1;
+                        show-box: false;
+                        box-size: 4;
+                        text-gap: 8;
+                        checked: true;
+                        font-size: 0.7;
+                        color: #C8CFD5;
+                        border: none;
+                        onChange: "handle_opt";
+
+                        Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                        Part { anchor: right; width: 12; height: 10; inset-right: 98; text: ">"; font-size: 0.7; color: #5B656D; text-align: center; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #2A3036; when: "!checked"; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #4E9B57; when: "checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 80; background: #87919A; when: "!checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 66; background: #0F1215; when: "checked"; }
+                        Part { anchor: right; width: 30; height: 14; inset-right: 26; background: #22282E; text: "Tab"; font-size: 0.55; color: #98A2AA; text-align: center; }
+                    }
+
+                    Checkbox {
+                        name: opt_check;
+                        text: "记住我的选择";
+                        width: 0;
+                        height: 28;
+                        margin-bottom: 1;
+                        show-box: false;
+                        box-size: 4;
+                        text-gap: 8;
+                        checked: false;
+                        font-size: 0.7;
+                        color: #C8CFD5;
+                        border: none;
+                        onChange: "handle_opt";
+
+                        Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                        Part { anchor: right; width: 12; height: 10; inset-right: 98; text: ">"; font-size: 0.7; color: #5B656D; text-align: center; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #2A3036; when: "!checked"; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #4E9B57; when: "checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 80; background: #87919A; when: "!checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 66; background: #0F1215; when: "checked"; }
+                        Part { anchor: right; width: 30; height: 14; inset-right: 26; background: #22282E; text: "F3"; font-size: 0.55; color: #98A2AA; text-align: center; }
+                    }
+
+                    Checkbox {
+                        name: opt_cloud;
+                        text: "启用云同步";
+                        width: 0;
+                        height: 28;
+                        margin-bottom: 1;
+                        show-box: false;
+                        box-size: 4;
+                        text-gap: 8;
+                        checked: true;
+                        font-size: 0.7;
+                        color: #C8CFD5;
+                        border: none;
+
+                        Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                        Part { anchor: right; width: 12; height: 10; inset-right: 98; text: ">"; font-size: 0.7; color: #5B656D; text-align: center; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #2A3036; when: "!checked"; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #4E9B57; when: "checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 80; background: #87919A; when: "!checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 66; background: #0F1215; when: "checked"; }
+                        Part { anchor: right; width: 30; height: 14; inset-right: 26; background: #22282E; text: "F5"; font-size: 0.55; color: #98A2AA; text-align: center; }
+                    }
+
+                    Checkbox {
+                        name: opt_update;
+                        text: "自动检查更新";
+                        width: 0;
+                        height: 28;
+                        margin-bottom: 6;
+                        show-box: false;
+                        box-size: 4;
+                        text-gap: 8;
+                        checked: false;
+                        font-size: 0.7;
+                        color: #C8CFD5;
+                        border: none;
+
+                        Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                        Part { anchor: right; width: 12; height: 10; inset-right: 98; text: ">"; font-size: 0.7; color: #5B656D; text-align: center; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #2A3036; when: "!checked"; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #4E9B57; when: "checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 80; background: #87919A; when: "!checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 66; background: #0F1215; when: "checked"; }
+                        Part { anchor: right; width: 30; height: 14; inset-right: 26; background: #22282E; text: "F1"; font-size: 0.55; color: #98A2AA; text-align: center; }
+                    }
+
+                    Label {
+                        text: "界面";
+                        width: 0;
+                        height: 11;
+                        margin-top: 2;
+                        margin-bottom: 4;
+                        font-size: 0.55;
+                        color: #5CD65C;
+                    }
+
+                    Checkbox {
+                        name: opt_smooth;
+                        text: "启用平滑滚动";
+                        width: 0;
+                        height: 28;
+                        margin-bottom: 1;
+                        show-box: false;
+                        box-size: 4;
+                        text-gap: 8;
+                        checked: true;
+                        font-size: 0.7;
+                        color: #C8CFD5;
+                        border: none;
+
+                        Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                        Part { anchor: right; width: 12; height: 10; inset-right: 98; text: ">"; font-size: 0.7; color: #5B656D; text-align: center; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #2A3036; when: "!checked"; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #4E9B57; when: "checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 80; background: #87919A; when: "!checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 66; background: #0F1215; when: "checked"; }
+                        Part { anchor: right; width: 30; height: 14; inset-right: 26; background: #22282E; text: "F4"; font-size: 0.55; color: #98A2AA; text-align: center; }
+                    }
+
+                    Checkbox {
+                        name: opt_scrollbar;
+                        text: "显示滚动条";
+                        width: 0;
+                        height: 28;
+                        margin-bottom: 6;
+                        show-box: false;
+                        box-size: 4;
+                        text-gap: 8;
+                        checked: true;
+                        font-size: 0.7;
+                        color: #C8CFD5;
+                        border: none;
+
+                        Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                        Part { anchor: right; width: 12; height: 10; inset-right: 98; text: ">"; font-size: 0.7; color: #5B656D; text-align: center; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #2A3036; when: "!checked"; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #4E9B57; when: "checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 80; background: #87919A; when: "!checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 66; background: #0F1215; when: "checked"; }
+                        Part { anchor: right; width: 30; height: 14; inset-right: 26; background: #22282E; text: "F6"; font-size: 0.55; color: #98A2AA; text-align: center; }
+                    }
+
+                    Container {
+                        name: slider_header;
+                        layout: horizontal;
+                        width: 0;
+                        height: 16;
+
+                        Label {
+                            text: "界面缩放";
+                            width: 240;
+                            height: 11;
+                            margin-top: 3;
+                            font-size: 0.68;
+                            color: #C8CFD5;
+                        }
+
+                        Label {
+                            name: volume_value;
+                            text: "50";
+                            width: 150;
+                            height: 11;
+                            margin-top: 3;
+                            font-size: 0.68;
+                            color: #5CD65C;
+                            text-align: right;
+                        }
+                    }
+
+                    Slider {
+                        name: volume;
+                        width: 0;
+                        height: 18;
+                        margin-top: 2;
+                        min: 0;
+                        max: 100;
+                        value: 50;
+                        border-radius: 0;
+                        track-height: 3;
+                        track-color: #262C32;
+                        accent: #5CD65C;
+                        knob-size: 11;
+                        knob-color: #5CD65C;
+                        knob-active-color: #8CEB8C;
+                        smooth: true;
+                        smoothing: 22;
+                        onChange: "handle_vol";
+                    }
+
+                    Label {
+                        text: "输入与选择";
+                        width: 0;
+                        height: 11;
+                        margin-top: 8;
+                        margin-bottom: 4;
+                        font-size: 0.55;
+                        color: #5CD65C;
+                    }
+
+                    Dropdown {
+                        name: mode;
+                        width: 0;
+                        height: 26;
+                        margin-bottom: 6;
+                        options: "生存,创造,冒险";
+                        selected: 0;
+                        font-size: 0.7;
+                        item-padding: 8;
+                        item-height: 22;
+                        border-radius: 0;
+                        background: #171B1F;
+                        border: 1 solid #2F353B;
+                        list-background: #171B1FF8;
+                        selection-color: #5CD65C22;
+                        arrow-color: #5CD65C;
+                        arrow: ">" "∨";
+                        onChange: "handle_mode";
+                    }
+
+                    TextBox {
+                        name: command_field;
+                        width: 0;
+                        height: 26;
+                        margin-bottom: 8;
+                        text: "";
+                        placeholder: "输入命令或搜索…";
+                        max_length: 32;
+                        font-size: 0.7;
+                        text-padding: 8;
+                        caret-width: 1;
+                        caret-color: #5CD65C;
+                        placeholder-color: #6E787F;
+                        background: #171B1F;
+                        border: 1 solid #2F353B;
+                        hover-background: #1C2126;
+                        onChange: "handle_text";
+                        onSubmit: "handle_submit";
+                    }
+
+                    Label {
+                        text: "操作";
+                        width: 0;
+                        height: 11;
+                        margin-top: 2;
+                        margin-bottom: 4;
+                        font-size: 0.55;
+                        color: #5CD65C;
+                    }
+
+                    Checkbox {
+                        name: opt_gestures;
+                        text: "允许鼠标手势";
+                        width: 0;
+                        height: 28;
+                        margin-bottom: 1;
+                        show-box: false;
+                        box-size: 4;
+                        text-gap: 8;
+                        checked: false;
+                        font-size: 0.7;
+                        color: #C8CFD5;
+                        border: none;
+
+                        Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                        Part { anchor: right; width: 12; height: 10; inset-right: 98; text: ">"; font-size: 0.7; color: #5B656D; text-align: center; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #2A3036; when: "!checked"; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #4E9B57; when: "checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 80; background: #87919A; when: "!checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 66; background: #0F1215; when: "checked"; }
+                        Part { anchor: right; width: 30; height: 14; inset-right: 26; background: #22282E; text: "Tab"; font-size: 0.55; color: #98A2AA; text-align: center; }
+                    }
+
+                    Checkbox {
+                        name: opt_doubleclick;
+                        text: "双击快速整理";
+                        width: 0;
+                        height: 28;
+                        margin-bottom: 6;
+                        show-box: false;
+                        box-size: 4;
+                        text-gap: 8;
+                        checked: true;
+                        font-size: 0.7;
+                        color: #C8CFD5;
+                        border: none;
+
+                        Part { anchor: fill; background: #FFFFFF07; when: "hovered"; layer: under; }
+                        Part { anchor: right; width: 12; height: 10; inset-right: 98; text: ">"; font-size: 0.7; color: #5B656D; text-align: center; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #2A3036; when: "!checked"; }
+                        Part { anchor: right; width: 26; height: 12; inset-right: 64; background: #4E9B57; when: "checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 80; background: #87919A; when: "!checked"; }
+                        Part { anchor: right; width: 8; height: 8; inset-right: 66; background: #0F1215; when: "checked"; }
+                        Part { anchor: right; width: 30; height: 14; inset-right: 26; background: #22282E; text: "F2"; font-size: 0.55; color: #98A2AA; text-align: center; }
+                    }
+
+                    // 响应式示例：文本 / 颜色 / 可见性绑定和点击脚本都不需要 C++ 回调。
+                    Container {
+                        name: reactive_demo;
+                        layout: horizontal;
+                        width: 0;
+                        height: 22;
+                        margin-top: 4;
+                        margin-bottom: 4;
+
+                        Label {
+                            name: demo_health_state;
+                            text: @health > 0 ? "存活" : "死亡";
+                            width: 70;
+                            height: 11;
+                            margin-top: 5;
+                            font-size: 0.66;
+                            color: @theme_color;
+                        }
+
+                        Label {
+                            name: demo_health_value;
+                            text: @health;
+                            width: 44;
+                            height: 11;
+                            margin-top: 5;
+                            font-size: 0.66;
+                            color: #C8CFD5;
+                            text-align: right;
+                        }
+
+                        Button {
+                            name: demo_heal_button;
+                            text: "加血 +10";
+                            width: 84;
+                            height: 20;
+                            margin-left: 10;
+                            font-size: 0.62;
+                            background: #2F6B37;
+                            border: 1 solid #5CD65C;
+                            color: #D9F2D9;
+                            hover-background: #3C8446;
+                            pressed-background: #275B2E;
+                            onClick: { $gain = 10; @health += $gain; if (@health > 120) { @health = 120; } };
+                        }
+
+                        Checkbox {
+                            name: demo_theme_toggle;
+                            text: "绿色主题";
+                            width: 86;
+                            height: 18;
+                            margin-top: 2;
+                            margin-left: 8;
+                            font-size: 0.62;
+                            checked: @demo_on;
+                            onChange: { @theme_color = event.checked ? "#5CD65C" : "#E05252"; };
+                        }
+
+                        Checkbox {
+                            name: demo_lock_toggle;
+                            text: "锁定列表";
+                            width: 74;
+                            height: 18;
+                            margin-top: 2;
+                            margin-left: 8;
+                            font-size: 0.62;
+                            checked: @demo_locked;
+                            onChange: { @demo_locked = event.checked; };
+                        }
+                    }
+
+                    // 动态列表（ForEach）：@demo_items 换成新数组时自动重建整段行。
+                    ForEach (data: @demo_items, item: @item, index: @idx) {
+                        Button {
+                            name: demo_list_row;
+                            text: "{{@idx}}. {{@item.name}}  ×{{@item.count}}";
+                            width: 0;
+                            height: 22;
+                            margin-bottom: 1;
+                            font-size: 0.66;
+                            text-align: left;
+                            disabled: @demo_locked;
+                            disabled-opacity: 0.7;
+                            background: @idx % 2 == 0 ? "#171B1F" : "#1B2025";
+                            border: 1 solid #2A3036;
+                            color: @disabled ? "#5F686F" : (@item.id == @selected_item ? "#5CD65C" : "#C8CFD5");
+                            hover-background: #232A30;
+                            pressed-background: #2F363D;
+                            onClick: { @selected_item = @item.id; };
+                        }
+                    }
+
+                    // 禁用样式示例：disabled 来自同一数据键，样式用 @disabled 三元和
+                    // Part 的 when 自定义；disabled-opacity 调整默认变暗程度。
+                    Button {
+                        name: demo_lock_button;
+                        text: @disabled ? "已锁定，不可操作" : "点击锁定 / 解锁列表";
+                        width: 0;
+                        height: 22;
+                        margin-top: 2;
+                        margin-bottom: 2;
+                        font-size: 0.64;
+                        text-align: left;
+                        disabled: @demo_locked;
+                        disabled-opacity: 0.85;
+                        background: @disabled ? "#1E2226" : "#24302A";
+                        border-color: @disabled ? "#3A4046" : "#3C5A44";
+                        color: @disabled ? "#6E787F" : "#B9D6BF";
+                        hover-background: #2A322C;
+                        pressed-background: #2F363D;
+                        onClick: { @demo_locked = !@demo_locked; };
+
+                        Part { anchor: right; width: 34; height: 12; inset-right: 8; background: #2A2F34; when: "disabled"; text: "只读"; font-size: 0.52; color: #8A939B; text-align: center; }
+                    }
+
+                    Button {
+                        name: apply_button;
+                        text: "应用设置";
+                        width: 112;
+                        height: 24;
+                        font-size: 0.68;
+                        background: #2F6B37;
+                        border: 1 solid #5CD65C;
+                        color: #D9F2D9;
+                        hover-background: #3C8446;
+                        pressed-background: #275B2E;
+                        onClick: "apply_settings";
+                    }
+
+                    // 组件复用：参数化子树 + class 皮肤；Slot 接收调用方子节点。
+                    DemoRow(title: "组件复用", detail: "参数与默认值") {
+                        class: "demo_row_box";
+                    }
+
+                    DemoRow(title: "Slot 插槽") {
+                        Label { text: "← 调用方子节点"; width: 100; height: 11; margin-top: 5; font-size: 0.6; color: $panel_accent; text-align: right; }
+                    }
+
+                    Label {
+                        name: wrapped_demo;
+                        text: "自动换行示例：这段说明较长，wrap 打开后按宽度折行，超出行数上限的文本不会绘制。";
+                        width: 300;
+                        height: 26;
+                        margin-top: 2;
+                        font-size: 0.6;
+                        color: #87919A;
+                        wrap: true;
+                    }
+
+                    Panel {
+                        width: 0;
+                        height: 1;
+                        margin-top: 8;
+                        margin-bottom: 8;
+                        background: #23282D;
+                        border: none;
+                    }
+
+                    Label {
+                        text: "提示：P 开关面板 · F5 重载 · Esc 关闭 · 文本框 Enter 提交";
+                        width: 0;
+                        height: 14;
+                        font-size: 0.58;
+                        color: #66707A;
+                    }
+                }
+            }
+        }
+    }
+
+    Panel {
+        width: 0;
+        height: 1;
+        background: #23282D;
+        border: none;
+    }
+
+    // ---------------- 底栏 ----------------
+    Container {
+        name: footer;
+        layout: horizontal;
+        width: 0;
+        height: 26;
+        padding: 5;
+        background: #12161A;
+
+        Label {
+            name: status;
+            text: "就绪";
+            width: 300;
+            height: 11;
+            margin-top: 3;
+            font-size: 0.58;
+            color: #87919A;
+        }
+
+        Label {
+            name: hint;
+            text: "Silica · Lamium 风格示例";
+            width: 250;
+            height: 11;
+            margin-top: 3;
+            font-size: 0.58;
+            color: #66707A;
+            text-align: right;
+        }
+    }
+}

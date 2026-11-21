@@ -1,0 +1,23 @@
+# Build output
+/build/
+/dist/
+/SilicaTest/build/
+/SilicaTest/dist/
+/site/
+
+# Compiled artifacts
+*.obj
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.dll
+
+# Logs and scratch files
+*.log
+/tex_probe.exe
+
+# Editors
+.vs/
+.vscode/
+.idea/
